@@ -1,9 +1,8 @@
 #!/usr/bin/python3
-"""
-Contains the FileStorage class
-"""
+"""A module that Contains the FileStorage class"""
 
 import json
+import models
 from models.amenity import Amenity
 from models.base_model import BaseModel
 from models.city import City
@@ -11,6 +10,7 @@ from models.place import Place
 from models.review import Review
 from models.state import State
 from models.user import User
+from hashlib import md5
 
 classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
            "Place": Place, "Review": Review, "State": State, "User": User}
@@ -44,7 +44,9 @@ class FileStorage:
         """serializes __objects to the JSON file (path: __file_path)"""
         json_objects = {}
         for key in self.__objects:
-            json_objects[key] = self.__objects[key].to_dict()
+            if key == "password":
+                json_objects[key].decode()
+            json_objects[key] = self.__objects[key].to_dict(save_fs=1)
         with open(self.__file_path, 'w') as f:
             json.dump(json_objects, f)
 
@@ -55,7 +57,7 @@ class FileStorage:
                 jo = json.load(f)
             for key in jo:
                 self.__objects[key] = classes[jo[key]["__class__"]](**jo[key])
-        except:
+        except Exception as a:
             pass
 
     def delete(self, obj=None):
@@ -68,3 +70,31 @@ class FileStorage:
     def close(self):
         """call reload() method for deserializing the JSON file to objects"""
         self.reload()
+
+    def get(self, cls, id):
+        """
+        Returns the object based on the class name and its ID, or
+        None if not found
+        """
+        if cls not in classes.values():
+            return None
+
+        all_cls = models.storage.all(cls)
+        for val in all_cls.values():
+            if (val.id == id):
+                return val
+
+        return None
+
+    def count(self, cls=None):
+        """Method that returns the count the number of objects in storage"""
+        all_class = classes.values()
+
+        if not cls:
+            num = 0
+            for clas in all_class:
+                num += len(models.storage.all(clas).values())
+        else:
+            num = len(models.storage.all(cls).values())
+
+        return num
