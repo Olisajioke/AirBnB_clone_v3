@@ -123,6 +123,7 @@ def bad_request(error):
     return jsonify(response), 400
 
 
+# Task 15
 @app_views.route('/places_search', methods=['POST'], strict_slashes=False)
 def search_places():
     """
