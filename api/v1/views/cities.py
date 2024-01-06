@@ -8,11 +8,10 @@ from api.v1.views import app_views
 from models import storage
 
 
-# Function that acts as Route for retrieving all City objs of a specific State
 @app_views.route('/states/<state_id>/cities', methods=['GET'],
                  strict_slashes=False)
-def get_cities_by_state(state_id):
-    ''' Func that retrieves list of all City objs of a jsonify State'''
+def fetch_cities_by_state(state_id):
+    ''' Function that retrieves list of all City objs of a jsonify State'''
     state = storage.get(State, state_id)
     if not state:
         abort(404)
@@ -21,9 +20,8 @@ def get_cities_by_state(state_id):
     return jsonify(cities)
 
 
-# Function that acts as Route for retrieving a specific City object by ID
 @app_views.route('/cities/<city_id>', methods=['GET'], strict_slashes=False)
-def get_city(city_id):
+def fetch_city(city_id):
     ''' Function that retrieves a City object and returns the jsonify obj'''
     city = storage.get(City, city_id)
     if city:
@@ -32,9 +30,8 @@ def get_city(city_id):
         abort(404)
 
 
-# Function that acts as a Route for deleting a specific City object by ID
 @app_views.route('/cities/<city_id>', methods=['DELETE'])
-def delete_city(city_id):
+def remove_city(city_id):
     ''' Function that deletes a City object with jsonify'''
     city = storage.get(City, city_id)
     if city:
@@ -45,10 +42,9 @@ def delete_city(city_id):
         abort(404)
 
 
-# Function that acts as Route for creating new City obj under specific State
 @app_views.route('/states/<state_id>/cities', methods=['POST'],
                  strict_slashes=False)
-def create_city(state_id):
+def create_new_city(state_id):
     ''' Function that creates a City object with json'''
     state = storage.get(State, state_id)
     if not state:
@@ -67,9 +63,8 @@ def create_city(state_id):
     return jsonify(city.to_dict()), 201
 
 
-# Function that acts as Route for updating an existing City object by ID
 @app_views.route('/cities/<city_id>', methods=['PUT'], strict_slashes=False)
-def update_city(city_id):
+def update_existing_city(city_id):
     ''' Function that updates a City object with json'''
     city = storage.get(City, city_id)
     if city:
@@ -88,15 +83,14 @@ def update_city(city_id):
         abort(404)
 
 
-# Function that handle Errors:
 @app_views.errorhandler(404)
-def not_found(error):
+def handle_not_found(error):
     ''' Function that returns 404: Not Found with message'''
     return jsonify({'error': 'Not found'}), 404
 
 
 @app_views.errorhandler(400)
-def bad_request(error):
+def handle_bad_request(error):
     '''Function that returns a bad Request msg for illegal requests to API'''
     # Return a JSON response for 400 error
     return jsonify({'error': 'Bad Request'}), 400
